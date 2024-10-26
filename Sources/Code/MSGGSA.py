@@ -26,36 +26,36 @@ class Evaluate:
         self.K = 5
 
     def evaluate(self, gen):
-        # 应用特征选择
+        # Applying feature selection
         #print(gen)
         gen=np.array(gen)
         selected_features = np.where(gen == 1)[0]
         al_data = self.tr_x[:, selected_features]
         #print(selected_features)
 
-        # 初始化KFold和存储准确率的列表
+        # Initialize KFold and store a list of accuracy rates
         kf = KFold(n_splits=self.K, shuffle=True)
         scores = []
 
 
-        # 交叉验证
+        # Cross validation
         for tr_ix, te_ix in kf.split(al_data, self.tr_y):
-            # 注意这里我们使用al_data进行训练和测试
+            # Note that we used al_data for training and testing
             knn_classifier = KNeighborsClassifier(n_neighbors=3, weights='distance')
             knn_classifier.fit(al_data[tr_ix], self.tr_y[tr_ix])
             score = knn_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             scores.append(score)
 
 
-            # 计算平均准确率和标准差
+            # The average accuracy and standard deviation are calculated
         avg_score = np.mean(scores)
         std_score = np.std(scores)
 
 
-        # 输出结果
-        print(f"平均准确率: {avg_score:.4f}, 标准差: {std_score:.4f}")
+        # Output results
+        print(f"average accuracy: {avg_score:.4f}, 标准差: {std_score:.4f}")
 
-        # 可以选择性地输出适应度函数值，但这里只返回平均准确率和标准差
+        # You can optionally output the fitness function values, but here only the average accuracy and standard deviation are returned
         selectfea_count = np.count_nonzero(gen == 1)
         f = 0.9 * avg_score + 0.1 * (1 - selectfea_count / len(gen))
 
@@ -83,7 +83,7 @@ class Evaluate:
             s += knn_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             score = knn_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             scores.append(score)
-        #print("适应度",s/self.K)
+        #print("fittness",s/self.K)
         selectfea_count = np.count_nonzero(gen == 1)
         f=0.9*s / self.K+0.1*(1-selectfea_count/len(gen))
         std_accuracy = np.std(scores)* 10**2
@@ -98,7 +98,7 @@ class Evaluate:
         else:
             return dim'''
 
-'''#SVM分类器
+'''#SVM classifier
 class Evaluate:
     def __init__(self, tr_x, tr_y):
         self.tr_x = tr_x
@@ -112,7 +112,7 @@ class Evaluate:
         s = 0
         scores = []
         for tr_ix, te_ix in kf.split(self.tr_x):
-            svm_classifier = SVC()  # 使用SVM分类器
+            svm_classifier = SVC()  # Use the SVM classifier
             svm_classifier.fit(al_data[tr_ix], self.tr_y[tr_ix])
             s += svm_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             score = svm_classifier.score(al_data[te_ix], self.tr_y[te_ix])
@@ -130,7 +130,7 @@ class Evaluate:
         else:
             return dim'''
 
-#DT分类器
+#DTclassifier
 '''class Evaluate:
     def __init__(self, tr_x, tr_y):
         self.tr_x = tr_x
@@ -146,7 +146,7 @@ class Evaluate:
         precision = 0
         recall = 0
         for tr_ix, te_ix in kf.split(self.tr_x):
-            dt_classifier = DecisionTreeClassifier()  # 使用决策树分类器
+            dt_classifier = DecisionTreeClassifier()  # Use a decision tree classifier
             dt_classifier.fit(al_data[tr_ix], self.tr_y[tr_ix])
             s += dt_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             y_pred = dt_classifier.predict(al_data[te_ix])
@@ -174,7 +174,7 @@ class Evaluate:
             return dim'''
 
 
-#naïve Bayes分类器
+#naïve BayesUse classifier
 '''class Evaluate:
     def __init__(self, tr_x, tr_y):
         self.tr_x = tr_x
@@ -188,7 +188,7 @@ class Evaluate:
         s = 0
         scores = []
         for tr_ix, te_ix in kf.split(self.tr_x):
-            nb_classifier = GaussianNB()  # 使用高斯朴素贝叶斯分类器
+            nb_classifier = GaussianNB()  # Gaussian Naive Bayes classifier is used
             nb_classifier.fit(al_data[tr_ix], self.tr_y[tr_ix])
             s += nb_classifier.score(al_data[te_ix], self.tr_y[te_ix])
             score = knn_classifier.score(al_data[te_ix], self.tr_y[te_ix])
@@ -223,33 +223,33 @@ class Evaluate:
         random.shuffle(gen)
     return gens'''
 
-
+#Population initialization
 def random_search(n, dim):
     gens = []
     for _ in range(n):
-        total_ones = random.randint(1, dim/2)  # 确保1的总数不超过dim
-        ones_in_first_half = total_ones  # 这里简单地分成两半，但你可以根据需要调整
+        total_ones = random.randint(1, dim/2)  # Ensure that the total number of 1's does not exceed dim
+        ones_in_first_half = total_ones  # Here it's simply split in half, but you can adjust it as needed
         ones_in_second_half = total_ones//2
 
-        # 如果前半部分的1的数量超过可能的位置数，则重新分配
+        # If the number of ones in the first half exceeds the number of possible positions, it is reallocated
         if ones_in_first_half > dim // 2:
             ones_in_first_half = dim // 2
             ones_in_second_half = total_ones - ones_in_first_half
 
-            # 随机选择位置
+            # Randomly choosing a location
         positions_first_half = random.sample(range(dim // 2), ones_in_first_half)
         positions_second_half = random.sample(range(dim // 2, dim), ones_in_second_half)
 
-        # 生成特征向量
+        # Generating feature vectors
         gen = [1 if i in positions_first_half + positions_second_half else 0 for i in range(dim)]
 
-        # 打印当前向量的1的数量（如果需要）
+        # Print the number of ones in the current vector (if needed)
         count = sum(1 for num in gen if num == 1)
-        # print(f"当前向量的1的数量: {count}")
+        # print(f"The number of ones in the current vector: {count}")
 
         gens.append(gen)
 
-        # print("所有生成的向量:", gens)  # 如果你想打印所有向量
+        # print("All the generated vectors:", gens)  # If you want to print all vectors
     return gens
 
 
@@ -257,18 +257,18 @@ def random_search(n, dim):
 '''def random_search(n, dim):
     gens = []
     for _ in range(n):
-        k = random.randint(1, 100)  # 选择1的个数
-        positions = random.sample(range(1, dim+1), k)  # 随机选择k个不重复的位置
-        gen = [1 if i+1 in positions else 0 for i in range(dim)]  # 生成特征向量
+        k = random.randint(1, 100)  # Choose the number of ones
+        positions = random.sample(range(1, dim+1), k)  # k non-repetitive positions are chosen at random
+        gen = [1 if i+1 in positions else 0 for i in range(dim)]  # Generating feature vectors
         gens.append(gen)
     return gens'''
 
 '''def Bmove(x, a, v): #(gens,a,v)
-    n,dim=len(x),len(x[0])#n为种群个体数，dim为特征数
-    v=[[random.random()*v[j][i]+a[i] for i in range(dim)] for j in range(n)]#rand(n,nn).*v+a#要素ごとの乗算#randは次元数分のrand配列
+    n,dim=len(x),len(x[0])#n is the number of population individuals and dim is the number of features
+    v=[[random.random()*v[j][i]+a[i] for i in range(dim)] for j in range(n)]#rand(n,nn).*v+a
     s=[[abs(math.tanh(_v)) for _v in vv ] for vv in v]
-    temp=[[1 if rr<ss else 0 for rr,ss in zip(_r,_s)] for _r,_s in zip([[random.random() for i in range(dim)] for j in range(n)],s)]# < s:#s以上なら1,
-    x_moving=[[0 if temp[ind][i]==1 else 1  for i in range(len(temp[ind])) ] for ind in range(len(temp))]#find(t==1)#1のインデックス番号求めてそれの逆~にする
+    temp=[[1 if rr<ss else 0 for rr,ss in zip(_r,_s)] for _r,_s in zip([[random.random() for i in range(dim)] for j in range(n)],s)]
+    x_moving=[[0 if temp[ind][i]==1 else 1  for i in range(len(temp[ind])) ] for ind in range(len(temp))]#find(t==1)
     #xm(moving)=~xm(moving)
     return x_moving,v'''
 
@@ -282,28 +282,28 @@ def Bmove(x, a, v,I,iteration,r1=0.2,r2=0.8):
     temp = [[1 if rr < ss else 0 for rr, ss in zip(_r, _s)] for _r, _s in zip([[random.random() for i in range(dim)] for j in range(n)], p)]
     x_moving = [[0 if temp[ind][i] == 1 else 1 for i in range(len(temp[ind]))] for ind in range(len(temp))]
     matrix = np.array(x_moving)
-    # 变异概率的减小函数
+    # Decreasing function of mutation probability
     def mutation_rate(iteration):
         return 0.1*np.exp(iteration-100)
 
-    # 变异操作
+    # Mutation operation
     for i in range(n):
         if random.random() < mutation_rate(iteration):
             mutation_type = random.choices(['swap', 'flip', 'insert'], weights=[0.3, 0.5, 0.2], k=1)[0]
             if mutation_type == 'swap':
-                # 交换操作
+                #Swap operation
                 pos1, pos2 = random.sample(range(dim), 2)
                 matrix[i][pos1], matrix[i][pos2] = matrix[i][pos2], matrix[i][pos1]
                 x_moving = matrix.tolist()
             elif mutation_type == 'flip':
-                # 翻转操作
+                # Flip operation
                 pos1, pos2 = random.sample(range(dim), 2)
                 start = min(pos1, pos2)
                 end = max(pos1, pos2)
                 matrix[i][start:end + 1] = [1 if elem == 0 else 0 for elem in matrix[i][start:end + 1]]
                 x_moving = matrix.tolist()
             elif mutation_type == 'insert':
-                # 插入操作
+                # Insert operation
                 pos1, pos2 = random.sample(range(dim-1), 2)
                 start = min(pos1, pos2)
                 end = max(pos1, pos2)
@@ -333,7 +333,7 @@ def mc(fit, min_f):
             worst=fmin
         m=[(f-worst)/((best-worst)+sys.float_info.epsilon) for f in fit]
     mm=[_m/sum(m) for _m in m]
-    #print("质量：",mm)
+    #print("Mass：",mm)
     return mm
 
 def BGc(itertion, max_iter,n,g0):
@@ -342,7 +342,7 @@ def BGc(itertion, max_iter,n,g0):
     return g
 
 def BGf(m, x, G, Rp, EC, itertion, max_iter):
-    n,dim=len(x),len(x[0])#size(x)#n=群数,dim=次元数
+    n,dim=len(x),len(x[0])
     final_per=2#In the last iteration, only 2 percent of agents apply force to the others
     if EC == 1:
         kbest=final_per+(1-itertion/max_iter)*(100-final_per)
@@ -351,13 +351,13 @@ def BGf(m, x, G, Rp, EC, itertion, max_iter):
         kbest=n
     mm=np.array(m)
     am=[np.argsort(mm)[::-1][i] for i in range(len(mm))]#:
-    ds=sorted(am,reverse=True)#降順
+    ds=sorted(am,reverse=True)
     E = [0 for i in range(dim)]  # zero(1,dim)
     for i in range(len(x)):
         if i < 0 or i >= len(x):
             print("Invalid index:", i)
 
-    # 检查子列表的长度
+    # Check the length of the sublist
     for i in range(len(x)):
         if len(x[i]) != dim:
             print("Invalid sublist length at index", i)
@@ -410,8 +410,8 @@ def BGSA(Eval_Func=Evaluate, n=100, m_i=20, dim=None, minf=0, prog=True, EC=1, R
     gens_dic={tuple([0]*dim):float("-inf") if minf == 0 else float("inf")}
     #flag=dr#False
     gens=random_search(n,dim)#[[random.choice([0,1]) for _ in range(dim)] for i in range(n)]
-    q = len(gens)  # 得到种群数量
-    dim = len(gens[0])  # 假设所有个体的维度相同，取第一个个体的维度
+    q = len(gens)  # Get the population
+    dim = len(gens[0])  # Assume that all individuals have the same dimension and take the dimension of the first individual
     print("Shape of gens:", (q, dim))
     #bestc=[]
     #meanc=[]
@@ -419,7 +419,7 @@ def BGSA(Eval_Func=Evaluate, n=100, m_i=20, dim=None, minf=0, prog=True, EC=1, R
     v=[[0 for d in range(dim)] for i in range(n)]
     fit=[-float("inf") if minf == 0 else float("inf") for i in range(n)]
     if prog:
-        miter=tqdm(range(m_i)) #显示进度条
+        miter=tqdm(range(m_i)) #Show progress bar
     else:
         miter=range(m_i)
 
@@ -437,7 +437,7 @@ def BGSA(Eval_Func=Evaluate, n=100, m_i=20, dim=None, minf=0, prog=True, EC=1, R
             if minf==1:
                 pass
                 #afit=find(fitness>fitold)#minimazation#find is return index_list
-                afit=[ind for ind in range(n) if fit[ind] > fitold[ind]]  #存储筛选出的满足条件的元素索引的列表
+                afit=[ind for ind in range(n) if fit[ind] > fitold[ind]]  #Stores a list of the index of the filtered elements that meet the criteria
             else:
                 #afit=find(fittness<fitold)#max#
                 afit=[ind for ind in range(n) if fit[ind] < fitold[ind]]
@@ -483,9 +483,9 @@ def BGSA(Eval_Func=Evaluate, n=100, m_i=20, dim=None, minf=0, prog=True, EC=1, R
     return fbest,lbest,lbest.count(1)
 if __name__ == "__main__":
     # Read data and labels from CSV files
-    data = pd.read_csv("E:/研究生/test/jiangwei/SRBCT/selected_features1000.csv",header=0,index_col=0)
+    data = pd.read_csv("Gene file path",header=0,index_col=0)
     #data= data.drop(data.columns[0], axis=1)
-    labels = pd.read_csv("E:/研究生/test/jiangwei/SRBCT/sample_classes.csv",usecols=[1], header=0,encoding='utf-8')
+    labels = pd.read_csv("Tag file path",usecols=[1], header=0,encoding='utf-8')
 
     # Extract data as numpy arrays
     tr_x = data.values
@@ -506,8 +506,8 @@ if __name__ == "__main__":
     )
     count = selected_features["Selected"].value_counts()[1]
 
-    print("特征个数：",count)
+    print("Number of features：",count)
     # Save the selected features to a new CSV file
-    selected_features.to_csv("E:/研究生/test/jiangwei/SRBCT/result/IMGSA/selected_features1000.csv")
+    selected_features.to_csv("Storage path")
 
 
