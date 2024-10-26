@@ -1,6 +1,5 @@
 # MSGGSA
-运行此代码有如下注意事项：
-1、本算法为包装式特征选择算法，应用在癌症分类上，由于数据集都是高维的癌症基因数据，因此为了减少计算消耗，在运行此代码之前需要使用过滤式方法进行过滤。
-2、这里只提供了部分数据集作为示例，完整的全部数据集可在https://portal.gdc.cancer.gov/ and https://xenabrowser.net/datapages/得到。
-3、通过公开数据库下载好原始数据集之后，需对其进行预处理，例如，将其中的缺失值大于百分之50的行和列删掉等操作。
-4、将过滤后的数据输入到MSGGSA中即可得出结果。
+There are some caveats to running this code:
+1、The algorithm employed in this study is a wrapper feature selection algorithm specifically designed for cancer classification. Given the high dimensionality of the cancer gene dataset, it is recommended to apply a filtering method prior to executing this code in order to reduce computational costs. 
+2、To illustrate, only a subset of the complete dataset is provided here as an example. The entire dataset can be obtained from https://portal.gdc.cancer.gov/ and https://xenabrowser.net/datapages/. Once the raw dataset has been downloaded from a public database, preprocessing steps such as removing rows and columns with more than 50 percent missing values should be performed. 
+4、Finally, the filtered data can be input into MSGGSA to obtain accurate results.
